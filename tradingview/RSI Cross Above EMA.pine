@@ -1,0 +1,23 @@
+//@version=5
+strategy("RSI Crosses Above 25, Exit Above 75", overlay=false, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// === INPUTS ===
+rsiLength = input.int(13, title="RSI Length")
+rsiEntry = input.float(20.0, title="RSI Entry Level")
+rsiExit = input.float(80.0, title="RSI Exit Level")
+
+// === CALCULATIONS ===
+rsi = ta.rsi(close, rsiLength)
+
+// === ENTRY CONDITION ===
+entryCondition = ta.crossover(rsi, rsiEntry)
+
+// === EXIT CONDITION ===
+exitCondition = ta.crossover(rsi, rsiExit)
+
+// === STRATEGY EXECUTION ===
+if entryCondition
+    strategy.entry("Long", strategy.long)
+
+if exitCondition
+    strategy.close("Long")

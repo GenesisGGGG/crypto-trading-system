@@ -1,0 +1,52 @@
+//@version=5
+indicator("Custom Trading Bot Strategy", overlay=true)
+
+// === User Inputs ===
+macdShort = input.int(6, title="MACD Short Length")
+macdLong = input.int(13, title="MACD Long Length")
+macdSignal = input.int(5, title="MACD Signal Length")
+rsiLength = input.int(13, title="RSI Length")
+buyAmount = input.float(25000, title="Buy Amount (USD)")
+tpPercent = input.float(1.25, title="Take Profit (%)")
+slPercent = input.float(1, title="Stop Loss (%)")
+webhookUrl = input.string("https://your-webhook-url.com", title="Webhook URL")
+
+// === MACD Calculation ===
+[macdLine, signalLine, _] = ta.macd(close, macdShort, macdLong, macdSignal)
+macdRising = ta.valuewhen(macdLine > signalLine and ta.barssince(macdLine < signalLine) == 1, true, 0)
+
+// === RSI Calculation ===
+rsi = ta.rsi(close, rsiLength)
+rsiBelow30 = rsi < 30
+rsiAbove70 = rsi > 70
+rsiAbove60 = rsi > 60
+
+// === Alerts Logic ===
+// Entry Conditions
+entryConditionRSI5Min = request.security(syminfo.tickerid, "5", rsiBelow30)
+entryConditionMACD5Min = request.security(syminfo.tickerid, "5", macdRising)
+
+// Exit Conditions
+exitConditionRSI70 = request.security(syminfo.tickerid, "5", rsiAbove70)
+exitConditionRSI60_MACDDown = request.security(syminfo.tickerid, "5", rsiAbove60 and macdLine < signalLine)
+
+// === Trade Management ===
+// Tracking buy/sell state
+var bool inPosition = false
+var float entryPrice = na
+
+if entryConditionRSI5Min and entryConditionMACD5Min and not inPosition
+    // Send buy signal to webhook
+    inPosition := true
+    entryPrice := close
+    alert("Buy signal triggered: Buy $" + str.tostring(buyAmount) + " worth of " + syminfo.ticker + ". Target TP: " + str.tostring(tpPercent) + "%, SL: " + str.tostring(slPercent) + "%.", alert.freq_once_per_bar)
+
+if inPosition and (exitConditionRSI70 or exitConditionRSI60_MACDDown)
+    // Send sell signal to webhook and reset state
+    inPosition := false
+    entryPrice := na
+    alert("Sell signal triggered: Selling " + syminfo.ticker + " due to RSI > 70 or MACD reversal.", alert.freq_once_per_bar)
+
+// Plotting indicators
+plot(entryConditionRSI5Min and entryConditionMACD5Min ? na : close, style=plot.style_circles, color=color.green, title="Buy Signal")
+plot(exitConditionRSI70 or exitConditionRSI60_MACDDown ? na : close, style=plot.style_circles, color=color.red, title="Sell Signal")

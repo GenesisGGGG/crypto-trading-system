@@ -1,0 +1,17 @@
+//@version=5
+indicator("MACD Histogram Increasing Detector (All Historical Bars)", overlay=true)
+
+// MACD input parameters
+macdShort = input.int(5, title="MACD Short Length")
+macdLong = input.int(13, title="MACD Long Length")
+macdSignal = input.int(5, title="MACD Signal Length")
+
+// Calculate MACD values
+[macdLine, signalLine, histLine] = ta.macd(close, macdShort, macdLong, macdSignal)
+
+// Loop through all historical bars to check if histogram is increasing
+isIncreasing = ta.valuewhen(histLine > histLine[1] and histLine[1] > histLine[2], true, 0)
+
+// Label each historical bar where MACD histogram is increasing
+if isIncreasing
+    label.new(bar_index, low, text="INCREASING", style=label.style_label_down, color=color.green, textcolor=color.white)

@@ -1,0 +1,39 @@
+//@version=5
+indicator("RSI and MACD Buy Signal")
+// Input for RSI
+rsiPeriod = input.int(13, title="RSI Period")
+rsiUnderbought = input.int(40, title="RSI Overbought Level")
+rsiLevel = ta.rsi(close, rsiPeriod)
+
+// Input for MACD
+macdShortTerm = input.int(5, title="MACD Short Term Period")
+macdLongTerm = input.int(13, title="MACD Long Term Period")
+macdSignal = input.int(5, title="MACD Signal Period")
+[macdLine, signalLine, _] = ta.macd(close, macdShortTerm, macdLongTerm, macdSignal)
+
+// Variables to track the buy condition
+var bool rsiUnder30 = false
+var bool macdCrossedUp = false
+
+// Check if RSI is below 30
+if rsiLevel < rsiUnderbought
+    rsiUnder30 := true
+
+
+// Check if MACD crosses up from below the signal line
+if ta.crossover(macdLine, signalLine) and rsiUnder30
+    macdCrossedUp := true
+
+// Define the buy signal
+buySignal = macdCrossedUp and rsiUnder30
+
+// Alert condition
+alertcondition(buySignal, title="Buy Signal")
+
+// Plot buy signal
+plotshape(buySignal, title="Buy", location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
+
+// Once a buy is triggered, reset the MACD condition until RSI goes below 30 again
+macdCrossedUp := false // Reset MACD condition after a buy signal
+rsiUnder30 := false // Reset buySignal to prevent continuous alerts
+buySignal := false

@@ -1,0 +1,35 @@
+//@version=5
+indicator("Extreme Candle Reversal Alerts (Closed Candle Logic)", overlay=true)
+
+// === Inputs ===
+dropThreshold = 0.15  // 15% drop from previous close to current low
+riseThreshold = 0.10  // 10% rise from previous close to current high
+
+// === State tracking ===
+var bool inTrade = false
+
+// === Calculate using the PREVIOUS candle's data (i.e., on candle close)
+priceDrop = (low[1] / close[2]) - 1
+priceRise = (high[1] / close[2]) - 1
+
+// === Conditions based on previous candle
+entrySignal = priceDrop <= -dropThreshold
+exitSignal = priceRise >= riseThreshold
+
+// === Entry condition: Not in trade → Signal → Enter
+enterNow = not inTrade and entrySignal
+exitNow = inTrade and exitSignal
+
+// === Simulate trade tracking
+if enterNow
+    inTrade := true
+if exitNow
+    inTrade := false
+
+// === Alerts
+alertcondition(enterNow, title="Entry Alert", message="🔔 Entry Alert: Previous candle dropped >15% from close. Consider entering long.")
+alertcondition(exitNow, title="Exit Alert", message="🔔 Exit Alert: Previous candle rose >10% from close. Consider exiting position.")
+
+// === Plot signals for visual reference
+plotshape(enterNow, location=location.belowbar, style=shape.triangleup, color=color.green, size=size.small, title="Entry Signal")
+plotshape(exitNow, location=location.abovebar, style=shape.triangledown, color=color.red, size=size.small, title="Exit Signal")

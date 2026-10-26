@@ -1,0 +1,14 @@
+{
+    "passphrase": "your_tradingview_webhook_passphrase", 
+    "type": "type",
+    "amountUSD": "amountUSD",
+    "timenow": "{{timenow}}", 
+    "exchange": "{{exchange}}", 
+    "ticker": "{{ticker}}", 
+    "time": "{{time}}", 
+    "open": "{{open}}", 
+    "high": "{{high}}", 
+    "low": "{{low}}", 
+    "close": "{{close}}", 
+    "volume": "{{volume}}"
+ }

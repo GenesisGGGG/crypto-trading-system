@@ -1,0 +1,24 @@
+//@version=5
+indicator("RSI Under 40 and MACD Crossover Buy Signal", overlay=true)
+
+// Input parameters for RSI
+rsiPeriod = input.int(13, title="RSI Period", minval=1)
+rsiThreshold = input.float(40, title="RSI Threshold", minval=1)
+rsiValue = ta.rsi(close, rsiPeriod)
+
+// Input parameters for MACD
+macdShort = input.int(5, title="MACD Short-Term Length", minval=1)
+macdLong = input.int(13, title="MACD Long-Term Length", minval=1)
+macdSignal = input.int(5, title="MACD Signal Line Length", minval=1)
+[macdLine, signalLine, _] = ta.macd(close, macdShort, macdLong, macdSignal)
+
+// Conditions
+rsiCondition = rsiValue < rsiThreshold  // RSI is below the threshold
+macdCrossover = ta.crossover(macdLine, signalLine)  // MACD switches from falling to rising
+
+// Combined buy condition
+buyCondition = rsiCondition and macdCrossover
+
+// Plot signals and alert conditions
+plotshape(buyCondition, title="Buy Signal", location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
+alertcondition(buyCondition, title="Buy Alert", message="Buy signal: RSI under 42 and MACD crossover detected")

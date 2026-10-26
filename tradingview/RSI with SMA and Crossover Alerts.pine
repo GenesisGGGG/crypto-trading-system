@@ -1,0 +1,31 @@
+//@version=5
+strategy("RSI Cross Above 50 Strategy (Exit on RSI < SMA)", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=100)
+
+// === INPUTS ===
+rsi_length = 250
+sma_length = 5
+
+// === RSI + SMA ===
+rsi = ta.rsi(close, rsi_length)
+ma_rsi = ta.sma(rsi, sma_length)
+
+// === ENTRY: RSI crosses above 50
+entryCond = ta.crossover(rsi, 50)
+
+// === EXIT: RSI crosses below its SMA
+exitCond = ta.crossunder(rsi, ma_rsi)
+
+// === STRATEGY EXECUTION ===
+if entryCond
+    strategy.entry("Long", strategy.long)
+
+if exitCond
+    strategy.close("Long")
+
+// === OPTIONAL PLOTS: RSI and SMA in subpane
+plot(rsi, title="RSI", color=color.blue)
+plot(ma_rsi, title="SMA of RSI", color=color.orange)
+
+// === ENTRY/EXIT PLOTS ON PRICE CHART
+plotshape(entryCond, title="Buy Signal", location=location.belowbar, style=shape.triangleup, color=color.green, size=size.small, text="Buy")
+plotshape(exitCond, title="Sell Signal", location=location.abovebar, style=shape.triangledown, color=color.red, size=size.small, text="Sell")

@@ -1,0 +1,34 @@
+//@version=5
+indicator("Stop Loss Indicator (8%/5%)", overlay=true)
+
+// Input parameters
+rsi_length = input.int(13, title="RSI Length")
+stop_gain_pct = input.float(8, title="Stop Gain %", minval=0) / 100
+stop_loss_pct = input.float(5, title="Stop Loss %", minval=0) / 100
+
+// Calculate RSI
+rsi = ta.rsi(close, rsi_length)
+
+// Variables to track state
+var float entry_price = na
+var bool signal_active = false
+
+// Detect RSI crossing above 30 after bar close
+if ta.crossover(rsi, 30)
+    entry_price := close
+    signal_active := true
+
+// Check stop gain or stop loss conditions
+if signal_active and not na(entry_price)
+    take_profit = entry_price * (1 + stop_gain_pct)
+    stop_loss = entry_price * (1 - stop_loss_pct)
+
+    if close >= take_profit
+        label.new(bar_index, high, "Take Profit", style=label.style_label_down, color=color.green, textcolor=color.white)
+        signal_active := false
+        entry_price := na
+    else if close <= stop_loss
+        label.new(bar_index, low, "Stop Loss", style=label.style_label_down, color=color.red, textcolor=color.white)
+        signal_active := false
+        entry_price := na
+

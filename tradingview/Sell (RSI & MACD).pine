@@ -1,0 +1,25 @@
+//@version=5
+indicator("RSI and MACD Combined Alert", overlay=false)
+
+// Input for RSI
+rsiPeriod = input.int(13, title="RSI Period")
+rsiOverbought = input.int(70, title="RSI Overbought Level")
+rsiLevel = ta.rsi(close, rsiPeriod)
+
+// Input for MACD
+macdShortTerm = input.int(5, title="MACD Short Term Period")
+macdLongTerm = input.int(13, title="MACD Long Term Period")
+macdSignal = input.int(5, title="MACD Signal Period")
+[macdLine, signalLine, _] = ta.macd(close, macdShortTerm, macdLongTerm, macdSignal)
+
+// Condition for RSI being above 70
+rsiCondition = rsiLevel > rsiOverbought
+
+// Condition for RSI above 60 and MACD falling (MACD line below the Signal line and moving downward)
+macdFallingCondition = rsiLevel > 60 and macdLine < signalLine and macdLine[1] > macdLine
+
+// Combined alert condition
+combinedCondition = rsiCondition or macdFallingCondition
+
+// Create single alert condition
+alertcondition(combinedCondition, title="RSI above 70 or RSI above 60 and MACD Falling", message="Alert: RSI is above 70 or RSI is above 60 and MACD is falling.")

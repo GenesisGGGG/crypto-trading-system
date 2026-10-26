@@ -1,0 +1,21 @@
+//@version=5
+strategy("MACD Histogram Increasing Strategy", overlay=true)
+
+// MACD input parameters
+macdShort = input.int(5, title="MACD Short Length")
+macdLong = input.int(13, title="MACD Long Length")
+macdSignal = input.int(5, title="MACD Signal Length")
+
+// Calculate MACD values
+[macdLine, signalLine, histLine] = ta.macd(close, macdShort, macdLong, macdSignal)
+
+// Check if histogram is increasing for 3 consecutive bars
+isIncreasing = histLine > histLine[1] and histLine[1] > histLine[2]
+
+// Long entry condition
+if (isIncreasing)
+    strategy.entry("Long", strategy.long)
+
+// Exit condition: Close if the next bar is NOT increasing
+if (not isIncreasing)
+    strategy.close("Long", comment="Exit: Histogram not increasing")

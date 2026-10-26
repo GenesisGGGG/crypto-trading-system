@@ -1,0 +1,22 @@
+//@version=5
+indicator('RSI with SMA Slope Alert', overlay=false)
+
+// Define RSI length
+rsi_length = 250
+rsi = ta.rsi(close, rsi_length)
+
+// Define SMA of RSI
+sma_length = 10
+ma_rsi = ta.sma(rsi, sma_length)
+
+// Calculate the slope (derivative) of the SMA of RSI
+rsi_slope = ma_rsi - ma_rsi[1]
+
+// Check if the slope is less than -1 for 3 consecutive candles
+slope_down_condition = rsi_slope > 1 and rsi_slope[1] > 1 and rsi_slope[2] > 1
+
+// Set alert condition when RSI is greater than 70 and slope condition is met
+alertcondition(slope_down_condition, title='SMA Slope > 1 for 3 Candles', message='Sell Signal')
+
+// Plot RSI slope for visualization
+plot(rsi_slope, color=color.new(color.red, 0), title='RSI Slope')

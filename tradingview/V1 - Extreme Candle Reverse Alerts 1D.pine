@@ -1,0 +1,22 @@
+//@version=5
+indicator("Extreme Candle Reversal Alerts", overlay=true)
+
+// === Inputs ===
+dropThreshold = 0.15  // 15% drop
+riseThreshold = 0.10  // 10% rise
+
+// === Price Change Calculations ===
+priceDrop = (low / close[1]) - 1
+priceRise = (high / close[1]) - 1
+
+// === Conditions ===
+longCondition = priceDrop <= -dropThreshold
+exitCondition = priceRise >= riseThreshold
+
+// === Alerts ===
+alertcondition(longCondition, title="Entry Alert", message="Price dropped 15% or more. Consider long entry.")
+alertcondition(exitCondition, title="Exit Alert", message="Price rose 10% or more. Consider exit.")
+
+// === Plotting (optional, for visual confirmation) ===
+plotshape(longCondition, location=location.belowbar, style=shape.triangleup, color=color.green, title="Entry Signal")
+plotshape(exitCondition, location=location.abovebar, style=shape.triangledown, color=color.red, title="Exit Signal")

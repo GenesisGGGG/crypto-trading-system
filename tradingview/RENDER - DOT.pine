@@ -1,0 +1,16 @@
+//@version=5
+indicator("RENDER / DOT Ratio", overlay=false)
+
+// Get the close prices of RENDER and DOT
+render_price = request.security("COINBASE:RNDRUSD", "D", close)
+dot_price = request.security("COINBASE:DOTUSD", "D", close)
+
+// Calculate the ratio of RENDER to DOT
+ratio = render_price / dot_price
+
+// Plot the ratio
+plot(ratio, color=color.blue, linewidth=2, title="RENDER / DOT Ratio")
+
+// Optional: Add horizontal lines for key levels
+hline(1, "1:1 Ratio", color=color.red, linestyle=hline.style_dotted)
+hline(0.5, "0.5 Level", color=color.green, linestyle=hline.style_dotted)

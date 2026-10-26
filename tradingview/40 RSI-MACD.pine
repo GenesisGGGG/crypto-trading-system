@@ -1,0 +1,27 @@
+//@version=5
+strategy("RSI + MACD Long-Only Strategy with 1D MACD Filter", overlay=true)
+
+// RSI Calculation
+rsiLength = 13
+rsiValue = ta.rsi(close, rsiLength)
+
+// MACD Calculation (5, 13, 5) on Current Timeframe
+[macdLine, signalLine, _] = ta.macd(close, 5, 13, 5)
+macdCrossUp = ta.crossover(macdLine, signalLine)
+macdCrossDown = ta.crossunder(macdLine, signalLine)
+
+// MACD Calculation on 1D Timeframe
+[macd1D, signal1D, _] = ta.macd(request.security(syminfo.ticker, "1D", close), 5, 13, 5)
+macd1D_falling = macd1D < macd1D[1] // Corrected logic: True when 1D MACD is lower than previous value
+
+// Long Entry & Exit Conditions
+longCondition = rsiValue < 40 and macdCrossUp and not macd1D_falling
+longExitCondition = rsiValue > 70
+
+// Execute Long Trades
+if (longCondition)
+    strategy.entry("Long", strategy.long)
+
+// Exit on RSI Condition
+if (longExitCondition)
+    strategy.close("Long", comment="Exit RSI > 70")

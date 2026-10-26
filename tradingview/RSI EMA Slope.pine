@@ -1,0 +1,25 @@
+//@version=5
+indicator("Slope of EMA Alert", overlay=false)
+
+// === Inputs ===
+emaLength        = input.int(9, title="EMA Length")
+slopeThreshold1  = input.float(1.0, title="Slope Threshold 1")
+slopeThreshold2  = input.float(0.5, title="Slope Threshold 2")
+priceThreshold   = input.float(40.0, title="Price Threshold")  // You can customize what this means for your strategy
+
+// === Calculate EMA and its slope ===
+ema = ta.ema(close, emaLength)
+emaSlope = ema - ema[1]
+
+// === Alert conditions ===
+condition1 = emaSlope > slopeThreshold1
+condition2 = (emaSlope > slopeThreshold2) and (close > priceThreshold)  // You can change `close` to another indicator if needed
+
+alertCondition = condition1 or condition2
+
+// === Plot ===
+plot(emaSlope, color=color.blue, title="EMA Slope", style=plot.style_line)
+hline(0, "Zero", color=color.gray, linestyle=hline.style_dotted)
+
+// === Alert trigger ===
+alertcondition(alertCondition, title="EMA Slope Alert", message="EMA slope rising. Possible momentum shift.")

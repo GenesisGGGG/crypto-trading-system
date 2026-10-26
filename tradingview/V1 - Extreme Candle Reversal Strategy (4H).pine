@@ -1,0 +1,24 @@
+//@version=5
+strategy("Extreme Candle Reversal Strategy 4H", overlay=true)
+
+// Percentage thresholds for entry & exit
+dropThreshold = 0.05  // 5% drop
+riseThreshold = 0.05  // 5% rise
+
+// Calculate price percentage changes
+priceDrop = (low / close[1]) - 1  // % change when price drops
+priceRise = (high / close[1]) - 1 // % change when price rises
+
+// Entry Condition: Price drops 15% or more
+longCondition = priceDrop <= -dropThreshold
+
+// Exit Condition: Price rises 12% or more
+exitCondition = priceRise >= riseThreshold
+
+// Execute Long Entry
+if longCondition
+    strategy.entry("Long", strategy.long)
+
+// Close position if exit condition is met
+if exitCondition
+    strategy.close("Long", comment="Exit: Price up 5%")

@@ -1,0 +1,40 @@
+//@version=5
+indicator("RSI and MACD Sell Signal (Upward Correction/Bullish)", overlay=true)
+
+// Input for RSI
+rsiPeriod = input.int(13, title="RSI Period")
+rsiOverbought = input.int(65, title="RSI Overbought Level")
+rsiLevel = ta.rsi(close, rsiPeriod)
+
+// Input for MACD
+macdShortTerm = input.int(5, title="MACD Short Term Period")
+macdLongTerm = input.int(13, title="MACD Long Term Period")
+macdSignal = input.int(5, title="MACD Signal Period")
+[macdLine, signalLine, _] = ta.macd(close, macdShortTerm, macdLongTerm, macdSignal)
+
+// Variables to track the buy condition
+var bool rsiAbove65 = false
+var bool macdCrossedDown = false
+
+// Check if RSI is below 30
+if rsiLevel > rsiOverbought
+    rsiAbove65 := true
+
+
+// Check if MACD crosses up from below the signal line
+if ta.crossunder(macdLine, signalLine) and rsiAbove65
+    macdCrossedDown := true
+
+// Define the buy signal
+sellSignal = macdCrossedDown
+
+// Alert condition
+alertcondition(sellSignal, title="Sell Signal")
+
+// Plot buy signal
+plotshape(sellSignal, title="Sell Signal in Bullish/Sharp Recovering Markets", location=location.belowbar, color=color.green, style=shape.labelup, text="BUY")
+
+// Once a buy is triggered, reset the MACD condition until RSI goes below 30 again
+if sellSignal
+    macdCrossedDown := false  // Reset MACD condition after a buy signal
+    rsiAbove65 := false      // Reset buySignal to prevent continuous alerts
