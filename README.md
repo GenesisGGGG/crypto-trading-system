@@ -2,7 +2,7 @@
 
 Automated crypto trading system I built and ran live, split into the two halves that actually move money:
 
-- **`tradingview/`** — 22 Pine Script indicators & strategies that generate the signals
+- **`tradingview/`** — the Pine Script side: 8 backtestable strategies plus the companion signal/alert/stop indicators that feed them
 - **`cloud-function/`** — the Google Cloud Function that receives webhooks and executes orders on Coinbase Advanced Trade (via `ccxt`)
 
 Signal flow: **TradingView strategy → webhook POST → Cloud Function → Coinbase.**
@@ -21,7 +21,14 @@ Coinbase  ── market buys sized in USD · half-position sells
 
 ## tradingview/
 
-22 Pine Script studies — RSI/MACD crossover signals, extreme-candle reversal strategies (1D/4H), RSI divergence (v6), slope detectors, stop-loss indicators, and the composite `Custom Trading Bot Strategy` that wires signals to a webhook URL. Code is kept exactly as saved in TradingView. `backtests/` holds the start of a vectorbt BTC validation notebook.
+Not 22 standalone bots — the pines are a few signal families, each a backtestable `strategy()` with its companion `indicator()` studies layered on top:
+
+- **RSI/MACD crossover systems** — `40 RSI-MACD`, `RSI Under 40 and MACD Crossover Buy Signal`, `RSI Over 60 and MACD Crossover Sell Signal`, `RSI and MACD Buy Signal (Nested)`, `RSI and MACD Sell Signal (Bullish-Sharp Recovery)`, `Sell (RSI & MACD)`
+- **Extreme-candle reversal family** — `V1 - Extreme Candle Reversal Strategy (1D)` and `(4H)` (+ the BTC-specific 1D variant), each with its alert-indicator companions
+- **Momentum/RSI variants** — `RSI Divergence Strategy`, `RSI Cross Above EMA`, `RSI with SMA and Crossover Alerts`, `V1 - MACD Histogram Increasing Strategy`
+- **Utility indicators** — slope detectors (`RSI EMA Slope`, `RSI with SMA Slope Alert`, `MACD Increasing Detector`), stop-loss levels (`Stop Loss`, `Stop Loss Indicator (8%-5%)`), and `Custom Trading Bot Strategy`, the composite indicator that wires the signals to the webhook URL
+
+Code is kept exactly as saved in TradingView. `backtests/` holds the start of a vectorbt BTC validation notebook.
 
 ## cloud-function/
 
